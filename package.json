@@ -1,0 +1,27 @@
+{
+  "name": "sd-cli",
+  "version": "1.0.0",
+  "description": "",
+  "main": "bin/main.js",
+  "bin": {
+    "sd": "bin/main.js"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "http://bitbucket.iluvatar.ai:7990/scm/csdx/sd-cli.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "chalk": "^3.0.0",
+    "commander": "^4.0.1",
+    "download-git-repo": "^3.0.2",
+    "inquirer": "^7.0.0",
+    "ora": "^4.0.3",
+    "semver": "^6.3.0"
+  }
+}
