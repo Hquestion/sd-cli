@@ -1,6 +1,6 @@
 {
-  "name": "sd-cli",
-  "version": "1.0.0",
+  "name": "@sdx/cli",
+  "version": "1.0.1",
   "description": "",
   "main": "bin/main.js",
   "bin": {
@@ -23,5 +23,8 @@
     "inquirer": "^7.0.0",
     "ora": "^4.0.3",
     "semver": "^6.3.0"
+  },
+  "publishConfig": {
+    "registry": "http://192.168.20.38:4873/"
   }
 }
