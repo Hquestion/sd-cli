@@ -7,6 +7,7 @@ const ora = require('ora');
 const downloadGitRepo = require('download-git-repo');
 const { folderExist, getFullPath, rmPath } = require('../utils/fs');
 const { create } = require('../lib/project');
+const { register } = require('../lib/gateway');
 
 const pack = require('../package');
 
@@ -24,6 +25,14 @@ program
     .option('-t --template <url>', '自定义项目模板')
     .action(function(name, cmd) {
         create(name, cmd);
+    });
+
+program
+    .command('register [name...]')
+    .description('注册聚合接口')
+    .option('-p --path <path>', '聚合接口脚本位置')
+    .action(function(name, cmd) {
+        register(name, cmd);
     });
 
 program.parse(process.argv);

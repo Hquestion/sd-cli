@@ -1,0 +1,173 @@
+#!/bin/bash
+
+log()
+{
+    echo >&2
+    echo -e "\\x1b[1;36m[$(date +%F\ %T)] $*\\x1b[0m" >&2
+}
+
+log_info()
+{
+    echo -e "[$(date +%F\ %T) Info] $*" >&2
+}
+
+log_debug()
+{
+    echo -e "\\x1b[1;32m[$(date +%F\ %T) Debug] $*\\x1b[0m" >&2
+}
+
+log_warn()
+{
+    echo -e "\\x1b[1;33m[$(date +%F\ %T) Warn] $*\\x1b[0m" >&2
+}
+
+log_error()
+{
+    echo -e "\\x1b[1;31m[$(date +%F\ %T) Error] $* \\x1b[0m" >&2
+}
+
+usage()
+{
+    cat >&2 <<-EOF
+Usage:
+    $0 [Flags] register <function_name> <function_source> <gateway_path> <method>
+    $0 [Flags] unregister <api_id>
+
+Commands:
+    register:       register aggregate api
+    unregister:     unregister aggregate api
+
+Flags:
+    -d:    debug mode
+    -v:    print current version
+    -h:    print usage
+EOF
+    exit 1
+}
+
+show_version()
+{
+    echo "v0.1"
+}
+
+register()
+{
+    local function_name="$1"
+    local function_source="$2"
+    local gateway_path="$3"
+    local method="$4"
+
+    #parse to upper case
+    method=$(echo $method | tr "[a-z]" "[A-Z]")
+
+    if [ -z "$method" ]; then
+        log_error "http method type must be set"
+        return 1
+    fi
+
+    if [ -z "$function_name" ]; then
+        log_error "function name type must be set"
+        return 1
+    fi
+
+    if [ -z "$function_source" ]; then
+        log_error "js file path must be set"
+        return 1
+    fi
+
+    if [ -z "$gateway_path" ]; then
+        log_error "gateway path must be set"
+        return 1
+    fi
+
+    if [[ ! "$gateway_path" =~ ^/.*  ]]; then
+        log_error "gateway path must begin with /"
+        return 1
+    fi
+
+    if [ ! -f $function_source ]; then
+        log_error "file : $function_source not exist"
+        return 1
+    fi
+
+    source=$(cat $function_source | base64 | xargs echo -n |sed 's/ //g')
+
+    local cluster_ip=$(kubectl get svc service-registry -n skydiscovery-system -o jsonpath='{.spec.clusterIP}')
+    local port=$(kubectl get svc service-registry -n skydiscovery-system -o jsonpath='{.spec.ports[0].port}')
+    if [ -z "$cluster_ip" ]; then
+        log_error "can't get service-registery cluster ip"
+        return 1
+    fi
+    if [ -z "port" ]; then
+        log_error "can't get service-registery port"
+        return 1
+    fi
+    # register
+    log_info "curl -s -H \"Content-Type: application/json\" -X POST -d \"{    \"apis\":[        {            \"gatewayPath\":\"$gateway_path\",            \"method\":\"$method\",            \"cache\":false,            \"blackList\":[],            \"whiteList\":[],            \"functionName\":\"$function_name\",            \"functionSource\":\"$source\",            \"attributes\":{}        }    ]}\"  http://$cluster_ip:$port/api/v1/aggregation-apis"
+    temp_file=$(mktemp)
+    echo "{\"apis\":[{\"gatewayPath\":\"$gateway_path\",\"method\":\"$method\",\"cache\":false,\"blackList\":[],\"whiteList\":[],\"functionName\":\"$function_name\",\"functionSource\":\"" > $temp_file
+    cat $function_source | base64 >> $temp_file
+    echo "\",\"attributes\":{}}]}" >> $temp_file
+    response=$(curl -s -H "Content-Type: application/json" -X POST -d@$temp_file http://$cluster_ip:$port/api/v1/aggregation-apis)
+    rm $temp_file
+    log_info $response
+}
+
+unregister()
+{
+    local api_id="$1"
+    if [ -z "$api_id" ]; then
+        log_error "unregister aggregate api  apiId must be set"
+        return 1
+    fi
+    api_id=$(echo $api_id | tr "/" "_")
+    local cluster_ip=$(kubectl get svc service-registry -n skydiscovery-system -o jsonpath='{.spec.clusterIP}')
+    local port=$(kubectl get svc service-registry -n skydiscovery-system -o jsonpath='{.spec.ports[0].port}')
+    if [ -z "$cluster_ip" ]; then
+        log_error "can't get service-registery cluster ip"
+        return 1
+    fi
+    if [ -z "port" ]; then
+        log_error "can't get service-registery port"
+        return 1
+    fi
+    response=$(curl -s -H "Content-Type: application/json" -X DELETE  http://$cluster_ip:$port/api/v1/aggregation-apis/$api_id)
+    log_info $response
+}
+
+# parse Flags
+while getopts "dvh" opt; do
+    case $opt in
+        v) VERSION="Y"; ;;
+        d) DEBUG="Y"; ;;
+        h | ?) usage ; ;;
+    esac
+done
+
+if [[ $DEBUG ]]; then
+    set -x
+    export DEBUG_PREFIX="/bin/bash -x"
+fi
+
+if [[ $VERSION ]]; then
+    show_version
+    exit 0
+fi
+
+shift $((OPTIND-1))
+ACTION="$1"
+
+shift
+OTHERS_PARAM="$*"
+
+case $ACTION in
+     register)
+        register $OTHERS_PARAM
+     ;;
+     unregister)
+        unregister $OTHERS_PARAM
+     ;;
+     *)
+     usage
+     ;;
+esac
