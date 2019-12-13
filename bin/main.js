@@ -40,8 +40,8 @@ program
     .description('删除已注册的聚合接口')
     .option('-n --name <name...>', '聚合接口函数名')
     .option('-id --api-id <id...>', '聚合接口API_ID，如/fe-compose/api/v1/login或_fe-compose_api_v1_login')
-    .action((cmd) => {
-        unregister({name, apiId} = cmd);
+    .action((name, cmd) => {
+        unregister(cmd);
     });
 
 program.parse(process.argv);
