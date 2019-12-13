@@ -43,4 +43,12 @@ program
         unregister(name, cmd);
     });
 
+program
+    .command('component <name>')
+    .description('快速创建组件目录结构，初始化部分代码')
+    // .option('')
+    .action(function(name, cmd) {
+        console.log('TODO')
+    });
+
 program.parse(process.argv);
