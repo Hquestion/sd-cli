@@ -21,7 +21,7 @@ program
 program
     .command('create <name>')
     .description('创建新项目')
-    .option('-f --force', '覆盖已存在文件夹')
+    .option('-f --force', '覆盖已存在文件夹', false)
     .option('-t --template <url>', '自定义项目模板')
     .action(function(name, cmd) {
         create(name, cmd);
@@ -38,7 +38,7 @@ program
 program
     .command('unregister [name...]')
     .description('删除已注册的聚合接口, name为函数名或者API_ID,格式如login（name）或/fe-compose/api/v1/login（apiID）或_fe-compose_api_v1_login（apiID）')
-    .option('-l --local', '是否使用当前路径的中聚合接口配置文件')
+    .option('-p --path <path>', '聚合接口脚本位置')
     .action(function (name, cmd) {
         unregister(name, cmd);
     });
