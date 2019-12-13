@@ -36,12 +36,11 @@ program
     });
 
 program
-    .command('unregister')
-    .description('删除已注册的聚合接口')
-    .option('-n --name <name...>', '聚合接口函数名')
-    .option('-id --api-id <id...>', '聚合接口API_ID，如/fe-compose/api/v1/login或_fe-compose_api_v1_login')
-    .action((name, cmd) => {
-        unregister(cmd);
+    .command('unregister [name...]')
+    .description('删除已注册的聚合接口, name为函数名或者API_ID,格式如login（name）或/fe-compose/api/v1/login（apiID）或_fe-compose_api_v1_login（apiID）')
+    .option('-l --local', '是否使用当前路径的中聚合接口配置文件')
+    .action(function (name, cmd) {
+        unregister(name, cmd);
     });
 
 program.parse(process.argv);
