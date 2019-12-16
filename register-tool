@@ -120,7 +120,7 @@ unregister()
         log_error "unregister aggregate api  apiId must be set"
         return 1
     fi
-    api_id=$(echo $api_id | tr "/" "_")
+    api_id=$(echo $api_id | tr "/" "-")
     local cluster_ip=$(kubectl get svc service-registry -n skydiscovery-system -o jsonpath='{.spec.clusterIP}')
     local port=$(kubectl get svc service-registry -n skydiscovery-system -o jsonpath='{.spec.ports[0].port}')
     if [ -z "$cluster_ip" ]; then
