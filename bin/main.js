@@ -8,6 +8,7 @@ const downloadGitRepo = require('download-git-repo');
 const { folderExist, getFullPath, rmPath } = require('../utils/fs');
 const { create } = require('../lib/project');
 const { register, unregister } = require('../lib/gateway');
+const { componentScaffold } = require('../lib/component');
 
 const pack = require('../package');
 
@@ -46,9 +47,10 @@ program
 program
     .command('component <name>')
     .description('快速创建组件目录结构，初始化部分代码')
-    // .option('')
+    .option('-p --package <name>', '组件所属包名')
+    .option('-f --force', '覆盖原组件', false)
     .action(function(name, cmd) {
-        console.log('TODO')
+        componentScaffold(name, cmd);
     });
 
 program.parse(process.argv);

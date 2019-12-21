@@ -1,3 +1,27 @@
+const ComponentPrefixMap = {
+    ui: 'Sdxu',
+    widget: 'Sdxw',
+    view: 'Sdxv'
+};
+
+const PACKAGE_TYPES = {
+    UI: 'ui',
+    WIDGET: 'widget',
+    VIEW: 'view'
+};
+
+const DEST_TYPES = {
+    PROJ_ROOT: 'PROJ_ROOT',
+    PACK_ROOT: 'PACK_ROOT',
+    COMP_ROOT: 'COMP_ROOT'
+};
+
+const varBEMMap = {
+    ui: '$bem-namespace-ui',
+    widget: '$bem-namespace-widget',
+    view: '$bem-namespace-view'
+};
+
 module.exports = {
     packageQuestions: [
         {
@@ -22,5 +46,9 @@ module.exports = {
                 'yarn'
             ]
         }
-    ]
+    ],
+    ComponentPrefixMap,
+    PACKAGE_TYPES,
+    DEST_TYPES,
+    varBEMMap
 };
